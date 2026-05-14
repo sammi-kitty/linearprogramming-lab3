@@ -73,19 +73,27 @@ def main():
         Result:\n {np.sum(result.x * np.array([490, 640, 470])):.2f}\n''')
         # Values for result taken directly from report
 
+    # Statistical analysis
     stat_problems = stat_model()
     solutions = np.empty((N, 3))
     for i in range(len(stat_problems)):
         solutions[i] = stat_problems[i].solve().x
 
-    plt_dict = {'Production A' : solutions[:, 0], 'Production B' : solutions[:, 1], 'Production C' : solutions[:, 2]}
+    plt_dict = {'Enheter\nproducerade\nA' : solutions[:, 0], 'Enheter\nproducerade\nB' : solutions[:, 1], 'Enheter\nproducerade\nC' : solutions[:, 2]}
     
     plt.boxplot(plt_dict.values(), tick_labels=plt_dict.keys())
-    plt.show()
+    plt.savefig(f"figures/{N}-iter-composition-boxplot.png", dpi=400)
     print(f'''Means:\n
-        Mean of A: {np.mean(solutions[:, 0])}\n
-        Mean of B: {np.mean(solutions[:, 1])}\n
-        Mean of C: {np.mean(solutions[:, 2])}''')
+        Mean of A: {np.mean(solutions[:, 0]):.2f}\n
+        Mean of B: {np.mean(solutions[:, 1]):.2f}\n
+        Mean of C: {np.mean(solutions[:, 2]):.2f}\n
+        ''')
+
+    print(f'''Standard deviations:\n
+        Standard deviation of A: {np.std(solutions[:, 0]):.2f}\n
+        Standard deviation of B: {np.std(solutions[:, 1]):.2f}\n
+        Standard deviation of C: {np.std(solutions[:, 2]):.2f}\n
+        ''')
 
 def simple_prob():
     # Directly from report
