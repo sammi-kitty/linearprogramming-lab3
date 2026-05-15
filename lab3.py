@@ -63,7 +63,8 @@ def main():
         # Values for result taken directly from report
 
     # Stability analysis
-    # stab_analysis = stability_prob()
+    stab_analysis = stability_prob()
+    print(stab_analysis)
 
     # Margin analysis
     margin_analysis = margin_prob()
@@ -79,10 +80,17 @@ def main():
     for i in range(len(stat_problems)):
         solutions[i] = stat_problems[i].solve().x
 
-    plt_dict = {'Enheter\nproducerade\nA' : solutions[:, 0], 'Enheter\nproducerade\nB' : solutions[:, 1], 'Enheter\nproducerade\nC' : solutions[:, 2]}
-    
-    plt.boxplot(plt_dict.values(), tick_labels=plt_dict.keys(), showmeans=True, meanline=True,)
-    plt.savefig(f"figures/{N}-iter-composition-boxplot.png", dpi=400)
+    counts, bins = np.histogram(solutions[:,0], bins=1000)
+    plt.stairs(counts, bins,label="Värden A")
+    counts, bins = np.histogram(solutions[:,1], bins=1000)
+    plt.stairs(counts, bins,label="Värden B")
+    counts, bins = np.histogram(solutions[:,2], bins=1000)
+    plt.stairs(counts, bins,label="Värden C")
+    plt.ylabel("Instanser av värde")
+    plt.xlabel("Antal producerade enheter")
+    plt.legend()
+    plt.savefig(f"figures/{N}-iter-histogram.png", dpi=400)
+    plt.clf
     
     print(f'''Means:\n
         Mean of A: {np.mean(solutions[:, 0]):.2f}\n
@@ -96,7 +104,14 @@ def main():
         Standard deviation of C: {np.std(solutions[:, 2]):.2f}\n
         ''')
 
-    
+    # a = 0
+    # b = 0
+    # i = 0
+    # for b in solutions[:, 1]:
+    #     if b == 310:
+    #         print(solutions[i, :])
+    #     i = i + 1
+    # print(f"= 200: {a}\n= 0: {b}")
 
 def simple_prob():
     # Directly from report
@@ -146,7 +161,35 @@ def dual_prob():
         le_limit = le_limit,)
 
 def stability_prob():
-    print("hello world")
+    baseline = simple_prob().solve()
+    increasing = [False, True]
+    limit_list = []
+    costs = [(2 * 75 + 3 * 220 + 10), (3 * 75 + 1 * 220 + 10), (2 * 75 + 2 * 220 + 10)]
+    
+    for i in range(len(simple_prob().solve().x)):
+        for is_increasing in increasing:
+            curr_solution = baseline
+            curr_program = simple_prob()
+            while np.array_equal(curr_solution.x, baseline.x):
+                if is_increasing:
+                    # Switched signs
+                    if not(curr_program.target_coef[i] <= -2000):
+                        curr_program.target_coef[i] = curr_program.target_coef[i] - 1
+                    else: 
+                        print("Broken due to end of limit, upper")
+                        break
+                elif not(is_increasing):
+                    # Switched signs
+                    if not(curr_program.target_coef[i] >= 0):
+                        curr_program.target_coef[i] = curr_program.target_coef[i] + 1
+                    else:
+                        print("Broken due to end of limit, lower")
+                        break
+                curr_solution = curr_program.solve()
+            print(f'''Value {i} broke, compare solutions: {curr_solution.x}, {baseline.x}''')
+            limit_list.append((-curr_program.target_coef[i]) + costs[i])
+
+    return limit_list
 
 def margin_prob():
     # Directly from report
