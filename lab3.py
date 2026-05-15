@@ -81,8 +81,9 @@ def main():
 
     plt_dict = {'Enheter\nproducerade\nA' : solutions[:, 0], 'Enheter\nproducerade\nB' : solutions[:, 1], 'Enheter\nproducerade\nC' : solutions[:, 2]}
     
-    plt.boxplot(plt_dict.values(), tick_labels=plt_dict.keys())
+    plt.boxplot(plt_dict.values(), tick_labels=plt_dict.keys(), showmeans=True, meanline=True,)
     plt.savefig(f"figures/{N}-iter-composition-boxplot.png", dpi=400)
+    
     print(f'''Means:\n
         Mean of A: {np.mean(solutions[:, 0]):.2f}\n
         Mean of B: {np.mean(solutions[:, 1]):.2f}\n
@@ -94,6 +95,8 @@ def main():
         Standard deviation of B: {np.std(solutions[:, 1]):.2f}\n
         Standard deviation of C: {np.std(solutions[:, 2]):.2f}\n
         ''')
+
+    
 
 def simple_prob():
     # Directly from report
@@ -170,18 +173,7 @@ def margin_prob():
         le_limit = le_limit,)
 
 def stat_model():
-    le_coef = np.array([
-        [2, 3, 2],
-        [3, 1, 2],
-        [0, -1, 0],
-        [0, 0, 1]
-    ])
-    le_limit = np.array([
-        930,
-        800,
-        -100,
-        200
-    ])
+    init_problem = simple_prob()
 
     # Get random values for A, B, C
     rng = np.random.default_rng()
@@ -197,7 +189,10 @@ def stat_model():
         -(prices_B[i] - 3 * 75 - 1 * 220 - 10),
         -(prices_C[i] - 2 * 75 - 2 * 220 - 10)
         ])
-        linear_programs[i] = LinearProgram(target_coef = target_coef, le_coef = le_coef, le_limit = le_limit)
+        linear_programs[i] = LinearProgram(
+            target_coef = target_coef,
+            le_coef = init_problem.le_coef,
+            le_limit = init_problem.le_limit)
 
     return linear_programs
 
