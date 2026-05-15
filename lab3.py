@@ -80,12 +80,12 @@ def main():
     for i in range(len(stat_problems)):
         solutions[i] = stat_problems[i].solve().x
 
-    counts, bins = np.histogram(solutions[:,0], bins=1000)
-    plt.stairs(counts, bins,label="Värden A")
-    counts, bins = np.histogram(solutions[:,1], bins=1000)
-    plt.stairs(counts, bins,label="Värden B")
-    counts, bins = np.histogram(solutions[:,2], bins=1000)
-    plt.stairs(counts, bins,label="Värden C")
+    counts, bins = np.histogram(solutions[:,0], bins=100)
+    plt.stairs(counts, bins, label="Värden A", color="red", fill=True, zorder=10)
+    counts, bins = np.histogram(solutions[:,1], bins=100)
+    plt.stairs(counts, bins, label="Värden B", color="limegreen",fill=True)
+    counts, bins = np.histogram(solutions[:,2], bins=100)
+    plt.stairs(counts, bins, label="Värden C", color="blue", fill=True)
     plt.ylabel("Instanser av värde")
     plt.xlabel("Antal producerade enheter")
     plt.legend()
