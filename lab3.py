@@ -68,10 +68,13 @@ def main():
 
     # Margin analysis
     margin_analysis = margin_prob()
-    result = margin_analysis.solve()
-    print(f'''Margin analysis
-        Variables:\n {result.x}\n
-        Result:\n {np.sum(result.x * np.array([490, 640, 470])):.2f}\n''')
+    iterations = len(margin_analysis) - 2 # Indexing correction
+    print(f'''
+        Returns for {2400 - (iterations)} hours: {-margin_analysis[iterations + 1].fun}\n 
+        Returns for {2400 - (iterations - 1)} hours: {-margin_analysis[iterations].fun}
+        Values:
+            {2400 - (iterations - 1)}: {margin_analysis[iterations - 2].x}\n
+            {(iterations)}: {margin_analysis[iterations-3].x}''') # Indexing corrections
         # Values for result taken directly from report
 
     # Statistical analysis
@@ -192,28 +195,33 @@ def stability_prob():
     return limit_list
 
 def margin_prob():
-    # Directly from report
-    target_coef = np.array([
-        -490,
-        -640,
-        -470
-    ])
-    le_coef = np.array([
-        [2, 3, 2],
-        [3, 1, 2],
-        [0, -1, 0],
-        [0, 0, 1]]
-        )
-    le_limit = np.array([
+    init_hours = 2400
+    profit_list = []
+    orig_problem = simple_prob()
+    orig_problem.le_limit = np.array([
         930,
-        (800 + 400),
+        (init_hours),
         -100,
         200
     ])
+    profit_list.append(orig_problem.solve())
 
-    return LinearProgram(target_coef = target_coef,
-        le_coef = le_coef,
-        le_limit = le_limit,)
+
+    for i in range(init_hours):
+        test_problem = simple_prob()
+        test_problem.le_limit = np.array([
+            930,
+            (init_hours - i),
+            -100,
+            200
+        ])
+        profit_list.append(test_problem.solve())
+        if (-profit_list[i].fun) > (-profit_list[i+1].fun):
+            print(f"Optimal: {init_hours - i}")
+            break
+    
+    return profit_list
+        
 
 def stat_model():
     init_problem = simple_prob()
