@@ -79,33 +79,17 @@ def main():
 
     # Statistical analysis
     stat_problems = stat_model()
-    solutions = np.empty((N, 3))
-    for i in range(len(stat_problems)):
-        solutions[i] = stat_problems[i].solve().x
+    stat_solutions = []
+    for problem in stat_problems:
+        stat_solutions.append(problem.solve().x)
 
-    counts, bins = np.histogram(solutions[:,0], bins=100)
-    plt.stairs(counts, bins, label="Värden A", color="red", fill=True, zorder=10)
-    counts, bins = np.histogram(solutions[:,1], bins=100)
-    plt.stairs(counts, bins, label="Värden B", color="limegreen",fill=True)
-    counts, bins = np.histogram(solutions[:,2], bins=100)
-    plt.stairs(counts, bins, label="Värden C", color="blue", fill=True)
-    plt.ylabel("Instanser av värde")
-    plt.xlabel("Antal producerade enheter")
-    plt.legend()
-    plt.savefig(f"figures/{N}-iter-histogram.png", dpi=400)
-    plt.clf
-    
-    print(f'''Means:\n
-        Mean of A: {np.mean(solutions[:, 0]):.2f}\n
-        Mean of B: {np.mean(solutions[:, 1]):.2f}\n
-        Mean of C: {np.mean(solutions[:, 2]):.2f}\n
-        ''')
+    unique, unique_counts = np.unique(stat_solutions,axis = 0, return_counts=True)
+    percentages = unique_counts / N * 100
+    names = ["Lösning 1", "Lösning 2", "Lösning 3", "Lösning 4"]
 
-    print(f'''Standard deviations:\n
-        Standard deviation of A: {np.std(solutions[:, 0]):.2f}\n
-        Standard deviation of B: {np.std(solutions[:, 1]):.2f}\n
-        Standard deviation of C: {np.std(solutions[:, 2]):.2f}\n
-        ''')
+    plt.pie(percentages, labels=names, autopct='%1.1f%%')
+    plt.savefig(f'figures/{N}-iter-piechart.png', dpi=400)
+    print(f"{unique}\n{percentages}")
 
     # a = 0
     # b = 0
